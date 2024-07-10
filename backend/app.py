@@ -11,6 +11,7 @@ from manim import tempconfig
 from typing import List, Dict
 import numpy as np
 from flask import Flask, request, send_file, jsonify
+from flask_cors import CORS
 from parse import ArrayNode, OperationNode, parse
 
 from templates.matmul import MatrixMultiplication
@@ -20,6 +21,7 @@ from templates.reshape import (ExpandDimsOperation, FlattenOperation,
                                RavelOperation, ReshapeOperation, SqueezeOperation)
 
 app = Flask(__name__)
+CORS(app, resources={r"/visualize": {"origins": "http://127.0.0.1:3000"}})
 
 ELEMENTWISE_OPS = ["add", "subtract", "multiply", "divide", "floor_divide", "mod", "power",
                    "sin", "cos", "tan", "arcsin", "arccos", "arctan", "sinh", "cosh", "tanh",
@@ -53,11 +55,13 @@ def visualize() -> str:
         # print("after exec")
 
         op_nodes = parse(numpy_code)
+        print("after parse")
         results = process_operations(op_nodes)
+        print("after operations")
         return jsonify(results)
     except Exception as e:
         # If parsing or processing fails, return an error response
-        return jsonify({"error": f"Error processing code: {str(e)}"}), 500
+        return jsonify({"error": str(e)}), 400
 
 
 def process_operations(operation_nodes: List[OperationNode]) -> List[Dict[str, str]]:
@@ -69,7 +73,6 @@ def process_operations(operation_nodes: List[OperationNode]) -> List[Dict[str, s
     for i, node in enumerate(operation_nodes):
         node.compute()
         animation_generated = generate_manim_animation(node, i)
-        print("after anim")
         result = {
             "operation": node.operation,
             "input": f"Operands: {node.operands}, Keyword Args: {node.kwargs}",
@@ -151,14 +154,17 @@ def generate_manim_animation(node: OperationNode, index: int) -> bool:
 
 
 @app.route('/video/<int:index>')
-def serve_video(index: int) -> str:
-    """
-    Serves the video file with the given index.
-    Returns the video file as a response.
-    """
-    video_path = os.path.join(os.getcwd(), 'media',
-                              'videos', f'Visualization_{index}.mp4')
-    return send_file(video_path, mimetype='video/mp4')
+def serve_video(index: int):
+    video_path = os.path.join(VIDEO_DIR, f'Visualization_{index}.mp4')
+    if not os.path.exists(video_path):
+        print(f"Video file not found: {video_path}")
+        abort(404, description="Video file not found")
+
+    try:
+        return send_file(video_path, mimetype='video/mp4', as_attachment=False)
+    except Exception as e:
+        print(f"Error serving video: {str(e)}")
+        abort(500, description="Error serving video")
 
 
 if __name__ == '__main__':
