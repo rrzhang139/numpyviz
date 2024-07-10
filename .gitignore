@@ -1,2 +1,4 @@
 .env
-/media
+**/media
+**/__pycache__/
+old

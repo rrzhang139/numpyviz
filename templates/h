@@ -1,0 +1,127 @@
+"""Manim code to visualize NumPy broadcast operations"""
+import numpy as np
+from manim import *
+
+
+class BroadcastingAnimation(Scene):
+    def __init__(self, arrays=None, target_shape=None, result=None, wait_time=0.5):
+        super().__init__()
+        self.arrays = arrays
+        self.target_shape = target_shape
+        self.result = result
+        self.wait_time = wait_time
+
+    def construct(self):
+        arrays = self.arrays
+        target_shape = self.target_shape
+        wait_time = self.wait_time
+        # Convert input to numpy arrays if they aren't already
+        arrays = [np.array(arr) for arr in arrays]
+
+        # Create Manim matrix objects for input arrays
+        matrices = [Matrix(arr) if arr.ndim != 1 else Matrix(
+            [[x] for x in arr]) for arr in arrays]
+
+        # Position matrices
+        for i, matrix in enumerate(matrices):
+            matrix.shift(LEFT * (len(matrices) - 1) * 2 + RIGHT * i * 4)
+
+        # Add matrices to the scene
+        self.play(*[Write(matrix) for matrix in matrices])
+        self.wait(wait_time)
+
+        # Show broadcasting
+        if target_shape:
+            # Case for broadcast_to
+            result = self.result
+            self.show_broadcast_to(matrices[0], result, wait_time)
+        elif len(arrays) > 1:
+            # Case for broadcast_arrays
+            results = self.result
+            # self.show_broadcast_arrays(matrices, results, wait_time)
+        else:
+            # Case for simple broadcast
+            self.show_simple_broadcast(matrices[0], wait_time)
+
+    def show_broadcast_to(self, matrix, result, wait_time):
+        # Create new elements for expanded dimensions
+        new_elements = []
+        for i in range(result.shape[0]):
+            for j in range(result.shape[1]):
+                value = result[i, j]
+                elem = MathTex(str(value))
+                new_elements.append(elem)
+
+         # Arrange new elements in a grid
+        new_matrix = VGroup(*new_elements).arrange_in_grid(
+            rows=result.shape[0], cols=result.shape[1], buff=0.6
+        )
+
+        # Update matrix brackets
+        left_bracket, right_bracket = adjust_brackets(matrix, new_matrix)
+
+        # Add new elements to the scene
+        self.play(
+            *[ReplacementTransform(matrix.get_entries()[i], new_elements[i])
+              for i in range(len(matrix.get_entries()))],
+            *[FadeIn(elem) for elem in new_elements],
+            Transform(matrix.get_brackets()[0], left_bracket),
+            Transform(matrix.get_brackets()[1], right_bracket)
+        )
+
+        self.wait(wait_time)
+
+    # TODO
+    # def show_broadcast_arrays(self, matrices, results, wait_time):
+    #     new_elements = []
+    #     for i in range(matrix)
+
+    #     self.wait(wait_time)
+
+    #     self.play(
+    #       *[ReplacementTransform() for i in range(len(matrices))]
+    #     )
+
+    #     self.wait(wait_time)
+
+    def show_simple_broadcast(self, matrix, wait_time):
+        broadcast_text = Text("broadcast").next_to(matrix, DOWN)
+        self.play(Write(broadcast_text))
+        self.wait(wait_time)
+
+        # Show how it would be applied in operations
+        operation_text = Text("(in operations)").next_to(broadcast_text, DOWN)
+        self.play(Write(operation_text))
+        self.wait(wait_time)
+
+# Example usage
+
+
+class BroadcastToExample(BroadcastingAnimation):
+    def construct(self):
+        array = np.array([1, 2, 3])  # Need it to be 2d ndarray
+        super().construct([array], target_shape=(3, 3))
+
+
+class BroadcastToExample2D(BroadcastingAnimation):
+    def construct(self):
+        array = np.array([[1, 2], [3, 4]])
+        super().construct([array], target_shape=(3, 3))
+
+
+class BroadcastArraysExample(BroadcastingAnimation):
+    def construct(self):
+        a = np.array([1, 2, 3])
+        b = np.array([[1], [2], [3]])
+        super().construct([a, b])
+
+
+class SimpleBroadcastExample(BroadcastingAnimation):
+    def construct(self):
+        array = np.array([1, 2, 3])
+        super().construct([array])
+
+# Uncomment one of these to run the animation
+# BroadcastToExample().render()
+# BroadcastArraysExample().render()
+# SimpleBroadcastExample().render()
