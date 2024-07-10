@@ -1,5 +1,7 @@
 # NumpyViz
 
+*NumpyViz is a code visualizer that renders dynamic visualizations for Numpy operations.* 
+
 ## Overview
 
 If you've ever struggled to understand multi-dimensional array operations -- furiously keeping track of the operation names, aligning dimensions, or visualizing transformations in your head -- you've come to the right place.
@@ -10,7 +12,7 @@ This level of understanding and interactivity only had to come from a new tool. 
 
 ## What is it?
 
-NumpyViz is a code visualizer that renders dynamic visualizations of matrix operations as they are executed. You can paste in arbitrary Numpy code and it will magically parse the code and return an ordered sequence of operations, complete with visual representations of each step.
+In NumpyViz, you can paste in arbitrary Numpy code and it will magically parse the code and return an ordered sequence of operations, complete with visual representations of each step.
 
 This was built with Python, Next.js/Vercel, and Manim, a math animations library, for vizualizations. 
 
