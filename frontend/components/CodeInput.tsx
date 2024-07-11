@@ -1,24 +1,28 @@
-// ./components/CodeInput.tsx
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import 'codemirror/lib/codemirror.css';
 import 'codemirror/mode/python/python';
 
 const CodeMirror = dynamic(() => import('react-codemirror2').then(mod => mod.Controlled), { ssr: false });
 
-export default function CodeInput({ onVisualize, errorLine }) {
-  const [code, setCode] = useState('');
+interface CodeInputProps {
+  onVisualize: (code: string) => void;
+  errorLine: number | null;
+}
 
-  const handleSubmit = (e) => {
+export default function CodeInput({ onVisualize, errorLine }: CodeInputProps) {
+  const [code, setCode] = useState<string>('');
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     onVisualize(code);
   };
 
   useEffect(() => {
-    const editor = document.querySelector('.CodeMirror');
+    const editor = document.querySelector('.CodeMirror') as any;
     if (editor && errorLine !== null) {
       editor.CodeMirror.operation(() => {
-        editor.CodeMirror.eachLine((line) => {
+        editor.CodeMirror.eachLine((line: any) => {
           editor.CodeMirror.removeLineClass(line, 'background', 'line-error');
         });
         editor.CodeMirror.addLineClass(errorLine - 1, 'background', 'line-error');

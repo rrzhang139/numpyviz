@@ -1,30 +1,44 @@
-import { useState } from 'react';
-import axios from 'axios';
+import React, { useState } from 'react';
+import axios, { AxiosError } from 'axios';
 import dynamic from 'next/dynamic';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 const CodeInput = dynamic(() => import('../components/CodeInput'), { ssr: false });
 
-export default function Home() {
-  const [results, setResults] = useState([]);
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [errorLine, setErrorLine] = useState(null);
-  const [videoKey, setVideoKey] = useState(Date.now());
+interface VisualizationResult {
+  operation: string;
+  input: string;
+  output: string;
+  video_url?: string;
+}
 
-  const handleVisualize = async (code) => {
+export default function Home() {
+  const [results, setResults] = useState<VisualizationResult[]>([]);
+  const [error, setError] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(false);
+  const [errorLine, setErrorLine] = useState<number | null>(null);
+  const [videoKey, setVideoKey] = useState<number>(Date.now());
+
+  const handleVisualize = async (code: string) => {
     setLoading(true);
     setError('');
     setErrorLine(null);
 
     try {
-      const response = await axios.post('/api/visualize', { code });
+      const response = await axios.post<VisualizationResult[]>('/api/visualize', { code });
       setResults(response.data);
       setVideoKey(Date.now());
     } catch (err) {
-      console.log(err)
-      const errorMsg = err.response?.data?.error || err.message;
+      console.error(err);
+      let errorMsg = 'An unknown error occurred';
+      
+      if (axios.isAxiosError(err)) {
+        errorMsg = err.response?.data?.error || err.message;
+      } else if (err instanceof Error) {
+        errorMsg = err.message;
+      }
+
       setError('Error processing code: ' + errorMsg);
 
       const lineMatch = errorMsg.match(/Line (\d+):/);
@@ -73,7 +87,6 @@ export default function Home() {
                 <source src={`${API_URL}/video/${index}`} type="video/mp4" />
                 Your browser does not support the video tag.
               </video>
-              {error && <p>Error: {error}</p>}
             </div>
           )}
         </div>
