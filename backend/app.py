@@ -21,7 +21,8 @@ from templates.reshape import (ExpandDimsOperation, FlattenOperation,
                                RavelOperation, ReshapeOperation, SqueezeOperation)
 
 app = Flask(__name__)
-CORS(app, resources={r"/visualize": {"origins": "http://127.0.0.1:3000"}})
+CORS(app, resources={
+     r"/visualize": {"origins": ["http://127.0.0.1:3000", "https://numpyviz.vercel.app/"]}})
 
 ELEMENTWISE_OPS = ["add", "subtract", "multiply", "divide", "floor_divide", "mod", "power",
                    "sin", "cos", "tan", "arcsin", "arccos", "arctan", "sinh", "cosh", "tanh",
