@@ -25,6 +25,54 @@ I hope this project aims to develop a comprehensive tool for visualizing machine
 - Support for a wide range of Numpy functions and operations
 - Interactive web interface for easy code input and visualization viewing
 
+## Getting Started
+I couldn't host backend on cloud because manim animation rendering took too much memory and storage. So, just run the app locally.
+
+### Prerequisites
+
+- Python (version 3.9 or later)
+- Node.js (version 14 or later)
+- npm (usually comes with Node.js)
+- Git
+
+### Backend
+1. Clone the repository:
+```
+git clone https://github.com/rzhang139/numpyviz.git
+cd numpyviz
+```
+
+2. Set up a Python virtual environment
+
+3. Install the required Python packages:
+```
+cd backend
+pip install -r requirements.txt
+```
+
+4. Start the Flask server:
+```
+python app.py
+```
+
+The backend should now be running on `http://localhost:5000`
+
+### Frontend
+1. Open a new terminal window and navigate to the frontend directory:
+```
+cd frontend
+```
+2. Install the required npm packages:
+```
+npm install
+```
+3. Start the Next.js server:
+```
+npm run dev
+```
+
+The frontend should now be accessible at `http://localhost:3000`
+
 ## Future Ideas
 
 **For anyone playing with this repo, please feel free to DM me on [twitter](https://twitter.com/rzhang139) if you run into any issues or would like to contribute**
